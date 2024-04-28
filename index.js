@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -32,34 +32,70 @@ async function run() {
     const spotsCollection = client.db('spotdb').collection('spot');
     const userCollection = client.db('spootdb').collection('user');
 
-    app.get('/myList', async(req, res) => {
+
+
+    app.get('/spot', async (req, res) => {
+      const cursor = spotsCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
+    })
+
+    app.get('/spot/:email', async (req, res) => {
       console.log(req.params.email);
-      const result = await spotsCollection.find({email: req.params.email}).toArray();
-      res.send(result);
+      const result = await spotsCollection.find({ email: req.params.email }).toArray();
+      res.send(result)
     })
 
-    app.get('/spot', async(req, res) => {
-        const cursor = spotsCollection.find();
-        const result = await cursor.toArray();
-        res.send(result)
+    app.get('/spots/:id', async (req, res) => {
+      console.log(req.params.id)
+      const result = await spotsCollection.findOne({ _id: new ObjectId(req.params.id) })
+      console.log(result)
+      res.send(result)
     })
 
-    app.post('/spot', async(req, res) => {
-        const touristSpots = req.body;
-        console.log(touristSpots)
-        const result = await spotsCollection.insertOne(touristSpots);
-        res.send(result)
+    app.post('/spot', async (req, res) => {
+      const touristSpots = req.body;
+      console.log(touristSpots)
+      const result = await spotsCollection.insertOne(touristSpots);
+      res.send(result)
     })
+
+    app.put('/spots/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateSpot = req.body;
+      const updateOperation = {
+        $set: {
+          spotName: updateSpot.spotName,
+          countryName: updateSpot.countryName,
+          location: updateSpot.location,
+          description: updateSpot.description,
+          average: updateSpot.average,
+          seasonality: updateSpot.seasonality,
+          travel: updateSpot.travel,
+          totalVisitors: updateSpot.totalVisitors,
+          photoURL: updateSpot.photoURL
+        }
+      };
+      try {
+        const result = await spotsCollection.updateOne(filter, updateOperation);
+        res.send(result);
+      } catch (error) {
+        console.error('Error updating tourist spot:', error);
+        res.status(500).send('Internal Server Error');
+      }
+    });
+
 
     // Client site of user
 
-    app.get('/user', async(req, res) => {
+    app.get('/user', async (req, res) => {
       const cursor = userCollection.find();
       const result = await cursor.toArray();
       res.send(result)
     })
 
-    app.post('/user', async(req, res) => {
+    app.post('/user', async (req, res) => {
       const user = req.body;
       console.log(user);
       const result = await userCollection.insertOne(user);
@@ -79,9 +115,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Goromer adventure is runnig')
+  res.send('Goromer adventure is runnig')
 })
 
 app.listen(port, () => {
-    console.log(`Goromer adventure in runnig on ${port}`)
+  console.log(`Goromer adventure in runnig on ${port}`)
 })
