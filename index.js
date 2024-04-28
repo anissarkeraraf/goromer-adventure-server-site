@@ -29,11 +29,17 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
-    const spotsConnection = client.db('spotdb').collection('spot');
+    const spotsCollection = client.db('spotdb').collection('spot');
+    const userCollection = client.db('spootdb').collection('user');
 
+    app.get('/myList', async(req, res) => {
+      console.log(req.params.email);
+      const result = await spotsCollection.find({email: req.params.email}).toArray();
+      res.send(result);
+    })
 
     app.get('/spot', async(req, res) => {
-        const cursor = spotsConnection.find();
+        const cursor = spotsCollection.find();
         const result = await cursor.toArray();
         res.send(result)
     })
@@ -41,8 +47,23 @@ async function run() {
     app.post('/spot', async(req, res) => {
         const touristSpots = req.body;
         console.log(touristSpots)
-        const result = await spotsConnection.insertOne(touristSpots);
+        const result = await spotsCollection.insertOne(touristSpots);
         res.send(result)
+    })
+
+    // Client site of user
+
+    app.get('/user', async(req, res) => {
+      const cursor = userCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
+    })
+
+    app.post('/user', async(req, res) => {
+      const user = req.body;
+      console.log(user);
+      const result = await userCollection.insertOne(user);
+      res.send(result);
     })
 
 
