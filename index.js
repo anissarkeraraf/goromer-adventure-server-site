@@ -118,12 +118,7 @@ async function run() {
     res.send(result)
   })
 
-  app.get('/country/:id', async (req, res) => {
-    console.log(req.params.id)
-    const result = await countryCollection.findOne({ _id: new ObjectId(req.params.id) })
-    console.log(result)
-    res.send(result)
-  })
+ 
 
 
     // Client site of user
