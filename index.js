@@ -30,6 +30,7 @@ async function run() {
     await client.connect();
 
     const spotsCollection = client.db('spotdb').collection('spot');
+    const countryCollection = client.db('spotdb').collection('countryCollection');
     const userCollection = client.db('spootdb').collection('user');
 
 
@@ -45,6 +46,7 @@ async function run() {
       const result = await spotsCollection.find({ email: req.params.email }).toArray();
       res.send(result)
     })
+
 
     app.get('/spots/:id', async (req, res) => {
       console.log(req.params.id)
@@ -93,6 +95,28 @@ async function run() {
      const result = await spotsCollection.deleteOne(query);
      res.send(result);
     })
+
+  // Country Collection
+
+  app.post('/country', async (req, res) => {
+    const country = req.body;
+    console.log(user);
+    const result = await countryCollection.insertOne(country);
+    res.send(result);
+  })
+
+
+  app.get('/country', async (req, res) => {
+    const cursor = countryCollection.find();
+    const result = await cursor.toArray();
+    res.send(result)
+  })
+
+  app.get('/country/:country_Name', async (req, res) => {
+    console.log(req.params.country_Name);
+    const result = await countryCollection.find({ country_Name: req.params.country_Name }).toArray();
+    res.send(result)
+  })
 
 
     // Client site of user
