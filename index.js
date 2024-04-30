@@ -112,9 +112,16 @@ async function run() {
     res.send(result)
   })
 
-  app.get('/country/:country_Name', async (req, res) => {
-    console.log(req.params.country_Name);
-    const result = await countryCollection.find({ country_Name: req.params.country_Name }).toArray();
+  app.get('/country/:countryName', async (req, res) => {
+    console.log(req.params.countryName);
+    const result = await countryCollection.find({ countryName: req.params.countryName }).toArray();
+    res.send(result)
+  })
+
+  app.get('/country/:id', async (req, res) => {
+    console.log(req.params.id)
+    const result = await countryCollection.findOne({ _id: new ObjectId(req.params.id) })
+    console.log(result)
     res.send(result)
   })
 
